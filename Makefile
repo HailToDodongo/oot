@@ -13,7 +13,7 @@ NON_MATCHING ?= 0
 # If ORIG_COMPILER is 1, compile with QEMU_IRIX and the original compiler
 ORIG_COMPILER ?= 0
 # If COMPILER is "gcc", compile with GCC instead of IDO.
-COMPILER ?= ido
+COMPILER ?= gcc
 
 CFLAGS ?=
 CPPFLAGS ?=
@@ -111,7 +111,7 @@ ZAPD       := tools/ZAPD/ZAPD.out
 FADO       := tools/fado/fado.elf
 
 ifeq ($(COMPILER),gcc)
-  OPTFLAGS := -Os -ffast-math -fno-unsafe-math-optimizations
+  OPTFLAGS := -Og -g -g3 -ffast-math -fno-unsafe-math-optimizations
 else
   OPTFLAGS := -O2
 endif
@@ -199,12 +199,14 @@ build/src/code/fmodf.o: OPTFLAGS := -g
 build/src/code/__osMemset.o: OPTFLAGS := -g
 build/src/code/__osMemmove.o: OPTFLAGS := -g
 
-# Use signed chars instead of unsigned for code_800EC960.c (needed to match AudioDebug_ScrPrt)
-build/src/code/code_800EC960.o: CFLAGS += -signed
+build/src/audio/%.o: OPTFLAGS := -O2
+
+# Use signed chars instead of unsigned for this audio file (needed to match AudioDebug_ScrPrt)
+build/src/audio/general.o: CFLAGS += -signed
 
 # Put string literals in .data for some audio files (needed to match these files with literals)
-build/src/code/code_800F7260.o: CFLAGS += -use_readwrite_const
-build/src/code/code_800F9280.o: CFLAGS += -use_readwrite_const
+build/src/audio/sfx.o: CFLAGS += -use_readwrite_const
+build/src/audio/sequence.o: CFLAGS += -use_readwrite_const
 
 build/src/libultra/libc/absf.o: OPTFLAGS := -O2 -g3
 build/src/libultra/libc/sqrt.o: OPTFLAGS := -O2 -g3
